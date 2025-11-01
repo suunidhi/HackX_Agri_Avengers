@@ -71,26 +71,26 @@ To build a digitally empowered, transparent, and sustainable agricultural ecosys
 
 
 3. **Set up environment variables (.env):**
-  ```bash
-  MONGO_URI=your_mongodb_connection_string
-  PORT=5000
+   ```bash
+   MONGO_URI=your_mongodb_connection_string
+   PORT=5000
 
 
 4. **Run the backend server:**
-  ```bash
+   ```bash
 
    node server.js
 
 
 5. **Run the frontend (if using React):**
-  ```bash
-  cd client
-  npm start
+   ```bash
+   cd client
+   npm start
 
 
 6. **Access the application:**
-  ```bash
-  Visit http://localhost:3000
+   ```bash
+   Visit http://localhost:3000
 
 ### Usage
 
