@@ -6,6 +6,14 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import QRCode from "qrcode";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import dotenv from "dotenv";
+dotenv.config();
+console.log("✅ Gemini API Key Loaded:", process.env.GEMINI_API_KEY ? "Yes" : "No");
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+
 
 const app = express();
 app.use(express.json());
@@ -51,6 +59,7 @@ const productSchema = new mongoose.Schema({
   farmerId: { type: mongoose.Schema.Types.ObjectId, ref: "Farmer", required: true },
   name: String,
   category: String,
+  preferences: { type: [String], default: [] }, // ✅ CHANGE HERE
   price: Number,
   quantity: Number,
   location: String,
@@ -63,6 +72,7 @@ const productSchema = new mongoose.Schema({
   labReport: String,
   qrPath: String,
 });
+
 const Product = mongoose.model("Product", productSchema);
 
 const orderSchema = new mongoose.Schema({
@@ -162,6 +172,7 @@ app.post(
         protein,
         pesticide,
         ph,
+        preferences // ✅ added this
       } = req.body;
 
       if (!mongoose.Types.ObjectId.isValid(farmerId))
@@ -181,6 +192,18 @@ app.post(
       const numericPesticide = parseFloat(pesticide) || 0;
       const numericPh = parseFloat(ph) || 0;
 
+      // ✅ Convert preferences (if array/string)
+      let preferenceArray = [];
+      if (typeof preferences === "string") {
+        try {
+          preferenceArray = JSON.parse(preferences);
+        } catch {
+          preferenceArray = preferences.split(",").map(p => p.trim());
+        }
+      } else if (Array.isArray(preferences)) {
+        preferenceArray = preferences;
+      }
+
       const qrDir = path.join(process.cwd(), "uploads/qrs");
       if (!fs.existsSync(qrDir)) fs.mkdirSync(qrDir, { recursive: true });
 
@@ -188,6 +211,7 @@ app.post(
         farmerId,
         name,
         category,
+        preferences: preferenceArray,
         price: numericPrice,
         quantity: numericQuantity,
         location,
@@ -222,7 +246,7 @@ app.post(
         product,
       });
     } catch (error) {
-      console.error("❌ Add Product Error:", error);
+      console.error("❌ Add Product Error:", error.message, error.stack);
       res.json({ status: "error", message: "Error adding product" });
     }
   }
@@ -307,16 +331,70 @@ app.get("/farmer/getProducts/:farmerId", async (req, res) => {
     res.json({ status: "error", message: "Error fetching products" });
   }
 });
-// Get all products
+// ✅ Get all products with optional filters
 app.get("/products", async (req, res) => {
   try {
-    const products = await Product.find().populate("farmerId", "name location");
-    res.json({ status: "success", products });
+    const { category, minPrice, maxPrice, location, preferences, sortBy } = req.query;
+
+    let filter = {};
+
+    // Category Filter
+    if (category) filter.category = category;
+
+    // Price Range Filter
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseFloat(minPrice);
+      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+    }
+
+    // Location Filter (from product's location)
+    if (location) {
+      filter.location = { $regex: new RegExp(location, "i") }; // case-insensitive
+    }
+
+    // Preferences Filter
+    if (preferences) {
+      const prefArray = Array.isArray(preferences)
+        ? preferences
+        : preferences.split(",").map((p) => p.trim());
+      filter.preferences = { $in: prefArray };
+    }
+
+    // ✅ Sorting logic
+    let sortQuery = {};
+    if (sortBy) {
+      switch (sortBy) {
+        case "price_asc":
+          sortQuery.price = 1;
+          break;
+        case "price_desc":
+          sortQuery.price = -1;
+          break;
+        case "newest":
+          sortQuery._id = -1;
+          break;
+        default:
+          break;
+      }
+    }
+
+    const products = await Product.find(filter)
+      .populate("farmerId", "name location")
+      .sort(sortQuery);
+
+    res.json({
+      status: "success",
+      count: products.length,
+      filters: filter,
+      products,
+    });
   } catch (error) {
-    console.error(error);
-    res.json({ status: "error", message: "Error fetching all products" });
+    console.error("❌ Product Filter Error:", error);
+    res.json({ status: "error", message: "Error fetching filtered products" });
   }
 });
+
 // ✅ Update product
 app.put("/farmer/updateProduct/:id", upload.single("image"), async (req, res) => {
   try {
@@ -543,6 +621,79 @@ app.get("/product/:id/view", async (req, res) => {
     console.error(err);
     res.send("<h2>Something went wrong!</h2>");
   }
+});
+const aiUpload = multer({ dest: "uploads/chat_images/" });
+
+app.post("/api/ai/chat", aiUpload.single("image"), async (req, res) => {
+  try {
+    const { query, translate } = req.body;
+    const imagePath = req.file ? path.join(process.cwd(), req.file.path) : null;
+
+    let messages = [];
+
+    // If image provided, describe it
+    if (imagePath) {
+      messages.push({
+        role: "user",
+        content: [
+          { type: "text", text: "Describe this image briefly for a farmer." },
+          { type: "image_url", image_url: `file://${imagePath}` },
+        ],
+      });
+    }
+
+    // Add user's text query
+    if (query) {
+      messages.push({ role: "user", content: query });
+    }
+
+
+
+
+let prompt = query || "";
+if (req.file) {
+  prompt = `Describe this image briefly for a farmer.`;
+}
+
+let input = [prompt];
+if (req.file) {
+  input = [
+    {
+      inlineData: {
+        mimeType: req.file.mimetype,
+        data: fs.readFileSync(req.file.path).toString("base64"),
+      },
+    },
+    prompt,
+  ];
+}
+console.log("🟢 Sending prompt to Gemini:", input);
+
+const result = await model.generateContent(input);
+let reply = result.response.text();
+
+if (translate === "hindi") {
+  const translateModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const translation = await translateModel.generateContent(`Translate this into Hindi: ${reply}`);
+  reply = translation.response.text();
+}
+console.log("🟢 Prompt:", prompt);
+console.log("🟢 Gemini Reply:", reply);
+
+    res.json({ success: true, reply });
+  } catch (error) {
+  console.error("❌ AI Chat Error:", error);
+  if (error.response) {
+    console.error("🔴 Response Status:", error.response.status);
+    console.error("🔴 Response Data:", error.response.data);
+  }
+  res.status(500).json({
+    success: false,
+    message: "AI Assistant error: " + (error.message || "Unknown error"),
+  });
+}
+
+
 });
 
 // ------------------ START SERVER ------------------
