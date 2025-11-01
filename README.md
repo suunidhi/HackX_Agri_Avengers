@@ -65,94 +65,96 @@ To build a digitally empowered, transparent, and sustainable agricultural ecosys
    ```bash
    git clone https://github.com/<your-username>/AgriDirect.git
    cd AgriDirect
-Install dependencies:
-
-npm install
-
-
-Set up environment variables (.env):
-
-MONGO_URI=your_mongodb_connection_string
-PORT=5000
+2. **Install dependencies:**
+   ```bash
+   npm install
 
 
-Run the backend server:
-
-node server.js
-
-
-Run the frontend (if using React):
-
-cd client
-npm start
+3. **Set up environment variables (.env):**
+  ```bash
+  MONGO_URI=your_mongodb_connection_string
+  PORT=5000
 
 
-Access the application:
-Visit http://localhost:3000
+4. **Run the backend server:**
+  ```bash
 
-Usage
+   node server.js
 
-Farmer Registration:
-Farmers register, upload certifications, and get verified using AI-backed validation.
 
-QR Code Generation:
-A unique QR code is assigned, linking to verified farm data and product details.
+5. **Run the frontend (if using React):**
+  ```bash
+  cd client
+  npm start
 
-Marketplace Access:
-Consumers scan the QR code to verify authenticity and purchase products directly from farmers.
 
-AI Dynamic Pricing:
-Prices are automatically balanced using AI models to ensure fairness and prevent exploitation.
+6. **Access the application:**
+  ```bash
+  Visit http://localhost:3000
 
-Community Pre-Booking:
-Enables consumers to collectively pre-order crops, reducing wastage and supporting farmers.
+### Usage
 
-Future Scope:
-Blockchain integration for tamper-proof records, voice-based support for rural farmers, and multilingual accessibility.
+1. Farmer Registration:
+   Farmers register, upload certifications, and get verified using AI-backed validation.
 
-Screenshots
-Screenshot	Description
+2. QR Code Generation:
+   A unique QR code is assigned, linking to verified farm data and product details.
 
-	AgriDirect Homepage
+3. Marketplace Access:
+   Consumers scan the QR code to verify authenticity and purchase products directly from farmers.
 
-	Verified Farmer Dashboard
+4. AI Dynamic Pricing:
+   Prices are automatically balanced using AI models to ensure fairness and prevent exploitation.
 
-	QR Verification Page
+5. Community Pre-Booking:
+   Enables consumers to collectively pre-order crops, reducing wastage and supporting farmers.
 
-(Replace URLs with actual image paths in your repository)
+6. Future Scope:
+   Blockchain integration for tamper-proof records, voice-based support for rural farmers, and multilingual accessibility.
 
-Team Details
+### Screenshots
+| Screenshot                                                                      | Description               |
+| ------------------------------------------------------------------------------- | ------------------------- |
+| ![Homepage](https://suunidhi.github.io/HackX_Agri_Avengers/public/image/homepage.png)              | AgriDirect Homepage       |
+| ![Farmer Dashboard](https://suunidhi.github.io/HackX_Agri_Avengers/public/image/farmerdashboard.png) | Verified Farmer Dashboard |
+| ![QR Verification](https://suunidhi.github.io/HackX_Agri_Avengers/public/image/qr-verification.png)         | QR Verification Page      |
 
-Team Name: Agri_Avengers
-Institution: MBIT, Gujarat
-Department: Computer Engineering
-Faculty Mentor: Prof. Sreeja P
 
-Name	Role	Contact
-Shikha Shah	Frontend & Integration	+91 78029 19053
-Khushi Rana	Backend & Database	+91 91064 53981
-Dhrupesh Rana	AI Model & Cloud Deployment	+91 63551 30271
-Impact
 
-Economic: Enhances farmer income by up to 40% through direct sales.
+### Team Details
 
-Social: Builds trust via transparency and QR-based verification.
+**Team Name**: Agri_Avengers
+**Institution**: MBIT, Gujarat
+**Department**: Computer Engineering
+**Faculty Mentor**: Prof. Sreeja P
 
-Environmental: Reduces post-harvest waste by 20–30% using predictive analytics.
+| Name              | Role                        | Contact         |
+| ----------------- | --------------------------- | --------------- |
+| **Shikha Shah**   | Frontend & Integration      | +91 78029 19053 |
+| **Khushi Rana**   | Backend & Database          | +91 91064 53981 |
+| **Dhrupesh Rana** | AI Model & Cloud Deployment | +91 63551 30271 |
 
-Sustainability: Aligns with SDGs 2 (Zero Hunger), 8 (Decent Work), and 12 (Responsible Consumption).
+### Impact
 
-References
+**Economic**: Enhances farmer income by up to 40% through direct sales.
 
-Agrimp – Agri Marketplace Reference
+**Social**: Builds trust via transparency and QR-based verification.
 
-KisanKonnect – Case Study on Farm-to-Consumer Models
+**Environmental**: Reduces post-harvest waste by 20–30% using predictive analytics.
 
-ScienceDirect – AI in Agriculture Research Paper (2021)
+**Sustainability**: Aligns with SDGs 2 (Zero Hunger), 8 (Decent Work), and 12 (Responsible Consumption).
 
-ResearchGate – Indian Farmer, Middlemen and APMC Study
+### References
 
-Times of India – Farmer Profit Margins (2024)
+1. Agrimp – Agri Marketplace Reference
+
+2. KisanKonnect – Case Study on Farm-to-Consumer Models
+
+3. ScienceDirect – AI in Agriculture Research Paper (2021)
+
+4. ResearchGate – Indian Farmer, Middlemen and APMC Study
+
+5. Times of India – Farmer Profit Margins (2024)
 
 
 ---
